@@ -1,0 +1,40 @@
+---
+name: Test setup-github-bot
+
+on:
+  workflow_call: ~
+  pull_request:
+    paths:
+      - setup-github-bot/**
+      - .github/workflows/test-setup-github-bot.yml
+  push:
+    branches:
+      - main
+    paths:
+      - setup-github-bot/**
+      - .github/workflows/test-setup-github-bot.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run action
+        uses: ./setup-github-bot
+
+      - name: Verify git identity
+        shell: bash
+        run: |
+          [ "$(git config --global user.name)" = "github-actions[bot]" ]
+          [ "$(git config --global user.email)" = "github-actions[bot]@users.noreply.github.com" ]

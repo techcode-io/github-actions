@@ -1,0 +1,94 @@
+---
+name: Release
+
+# Tags are per action: `<action>/vX.Y.Z` (immutable) and `<action>/vX` (floating major).
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Action directory to release (e.g. setup-github-bot)
+        required: true
+        type: string
+      version:
+        description: Semantic version without prefix (e.g. 1.2.3)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.action }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
+      major: ${{ steps.vars.outputs.major }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate inputs
+        id: vars
+        env:
+          ACTION: ${{ inputs.action }}
+          VERSION: ${{ inputs.version }}
+        shell: python
+        run: |
+          import os, re, subprocess, sys
+          from pathlib import Path
+
+          action = os.environ["ACTION"]
+          version = os.environ["VERSION"]
+
+          if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", action):
+              sys.exit(f"invalid action name: {action!r}")
+          if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+              sys.exit(f"version must be X.Y.Z, got {version!r}")
+          if not any(Path(action, f).is_file() for f in ("action.yml", "action.yaml")):
+              sys.exit(f"{action} is not an action")
+
+          tag = f"{action}/v{version}"
+          major = f"{action}/v{version.split('.')[0]}"
+
+          # Query the remote: a shallow checkout does not fetch tags.
+          remote = subprocess.run(
+              ["git", "ls-remote", "--tags", "origin", f"refs/tags/{tag}"],
+              capture_output=True, text=True, check=True,
+          )
+          if remote.stdout.strip():
+              sys.exit(f"tag {tag} already exists")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"tag={tag}\nmajor={major}\n")
+
+  # `uses` cannot be dynamic: add one gated job per action.
+  test-setup-github-bot:
+    needs: validate
+    if: inputs.action == 'setup-github-bot'
+    uses: ./.github/workflows/test-setup-github-bot.yml
+
+  publish:
+    needs:
+      - validate
+      - test-setup-github-bot
+    # Add one `needs.test-<action>.result == 'success'` clause per action; an action without a test job cannot be released.
+    if: ${{ !cancelled() && needs.test-setup-github-bot.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.validate.outputs.tag }}
+          MAJOR: ${{ needs.validate.outputs.major }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "$TAG"
+          git tag -f -a "$MAJOR" -m "$MAJOR"
+          git push origin "refs/tags/$TAG"
+          git push -f origin "refs/tags/$MAJOR"
+          gh release create "$TAG" --title "$TAG" --generate-notes --latest=false
