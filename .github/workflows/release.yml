@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       tag: ${{ steps.vars.outputs.tag }}
       major: ${{ steps.vars.outputs.major }}
@@ -75,7 +75,7 @@ jobs:
       - test-setup-github-bot
     # Add one `needs.test-<action>.result == 'success'` clause per action; an action without a test job cannot be released.
     if: ${{ !cancelled() && needs.test-setup-github-bot.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v7
 
