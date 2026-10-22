@@ -31,11 +31,14 @@
 - One directory per action, versioned and released independently.
 - Each action is tested by its own workflow, only when it changes.
 - Per-action tags: an immutable `<action>/vX.Y.Z` and a floating `<action>/vX`.
+- Proxies for third-party actions, pinned to a commit SHA and forwarding all inputs and outputs unchanged.
+- Dependabot keeps the workflows and every action up to date.
 
 ## :dart: Motivation
 
 - We needed a single place to share the actions used across our repositories.
 - Each action should be testable and releasable on its own, without versioning the whole repository.
+- Third-party actions are pinned and reviewed in one place, instead of in every consuming repository.
 
 ## :hammer: Workflow
 
@@ -60,6 +63,18 @@ The following steps will ensure your project is cloned properly.
 2. Add `.github/workflows/test-<action>.yml` (copy an existing one). It must trigger on `workflow_call` and on changes under `<action>/**`.
 3. Add a `test-<action>` job and its clause in the `publish` condition of `.github/workflows/release.yml`.
 4. Add the action to the table below.
+
+For a proxy of a third-party action, the composite `action.yml` copies the upstream inputs (with their defaults) and outputs, and pins the upstream action to a commit SHA with the version in a comment:
+
+```yaml
+uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+```
+
+### Update dependencies
+
+- Dependabot (`.github/dependabot.yml`) checks the workflows and every action directory weekly.
+- New action directories are covered automatically.
+- Each pull request updates a single directory: once an action's update is merged, release a new version of that action.
 
 ### Release
 

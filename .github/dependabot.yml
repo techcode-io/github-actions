@@ -1,0 +1,15 @@
+---
+version: 2
+
+updates:
+  # `/` covers the workflows; `/*` covers every action directory, so new actions are picked up automatically.
+  # Updates stay per directory: each pull request touches a single action, which is then released on its own.
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /*
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
