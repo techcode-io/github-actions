@@ -5,6 +5,7 @@ description: Proxy for docker/setup-buildx-action
 inputs:
   version:
     description: Buildx version (e.g. v0.3.0)
+    default: v0.38.1
     required: false
   driver:
     description: Sets the builder driver to be used

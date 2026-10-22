@@ -70,6 +70,8 @@ For a proxy of a third-party action, the composite `action.yml` copies the upstr
 uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 ```
 
+Any input selecting a tool or image version defaults to a pinned release instead of `latest`, so a given action version always installs the same thing. Dependabot does not update these defaults: bump them by hand.
+
 ### Update dependencies
 
 - Dependabot (`.github/dependabot.yml`) checks the workflows and every action directory weekly.

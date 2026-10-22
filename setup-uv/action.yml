@@ -4,8 +4,8 @@ description: Proxy for astral-sh/setup-uv
 
 inputs:
   version:
-    description: The version of uv to install, e.g., `0.5.0`, `latest`, or `latest-known`. Defaults to the version in pyproject.toml or `latest`.
-    default: ""
+    description: The version of uv to install, e.g., `0.5.0`, `latest`, or `latest-known`. Ignored when `version-file` is set.
+    default: 0.13.5
   version-file:
     description: Path to a file containing the version of uv to install, e.g., uv.toml, pyproject.toml, .tool-versions, requirements.txt or uv.lock. Defaults to searching for uv.toml and if not found pyproject.toml.
     default: ""
@@ -129,7 +129,8 @@ runs:
       id: setup
       uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       with:
-        version: ${{ inputs.version }}
+        # The pinned default would otherwise take precedence over an explicit `version-file`.
+        version: ${{ inputs.version-file == '' && inputs.version || '' }}
         version-file: ${{ inputs.version-file }}
         python-version: ${{ inputs.python-version }}
         python-arch: ${{ inputs.python-arch }}
