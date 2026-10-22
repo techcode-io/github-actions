@@ -84,6 +84,11 @@ jobs:
     if: inputs.action == 'setup-uv'
     uses: ./.github/workflows/test-setup-uv.yml
 
+  test-create-pull-request:
+    needs: validate
+    if: inputs.action == 'create-pull-request'
+    uses: ./.github/workflows/test-create-pull-request.yml
+
   publish:
     needs:
       - validate
@@ -91,13 +96,15 @@ jobs:
       - test-setup-qemu
       - test-setup-buildx
       - test-setup-uv
+      - test-create-pull-request
     # Add one `needs.test-<action>.result == 'success'` clause per action; an action without a test job cannot be released.
     if: >-
       ${{ !cancelled() && (
         needs.test-setup-github-bot.result == 'success' ||
         needs.test-setup-qemu.result == 'success' ||
         needs.test-setup-buildx.result == 'success' ||
-        needs.test-setup-uv.result == 'success'
+        needs.test-setup-uv.result == 'success' ||
+        needs.test-create-pull-request.result == 'success'
       ) }}
     runs-on: ubuntu-slim
     steps:

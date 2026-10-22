@@ -74,12 +74,13 @@ Each action is referenced by its prefixed tag:
 - uses: techcode-io/github-actions/<action>@<action>/v1
 ```
 
-| Action                                | Description                                      |
-|---------------------------------------|--------------------------------------------------|
-| [setup-buildx](setup-buildx)          | Proxy for `docker/setup-buildx-action`           |
-| [setup-github-bot](setup-github-bot)  | Configure git to commit as `github-actions[bot]` |
-| [setup-qemu](setup-qemu)              | Proxy for `docker/setup-qemu-action`             |
-| [setup-uv](setup-uv)                  | Proxy for `astral-sh/setup-uv`                   |
+| Action                                     | Description                                      |
+|--------------------------------------------|--------------------------------------------------|
+| [create-pull-request](create-pull-request) | Proxy for `peter-evans/create-pull-request`      |
+| [setup-buildx](setup-buildx)               | Proxy for `docker/setup-buildx-action`           |
+| [setup-github-bot](setup-github-bot)       | Configure git to commit as `github-actions[bot]` |
+| [setup-qemu](setup-qemu)                   | Proxy for `docker/setup-qemu-action`             |
+| [setup-uv](setup-uv)                       | Proxy for `astral-sh/setup-uv`                   |
 
 ## :heart: Contributing
 
