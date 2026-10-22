@@ -34,3 +34,4 @@ Consumers reference actions by prefixed tag: `techcode-io/github-actions/<action
 
 - Commit messages follow Conventional Commits (`feat:`, `fix:`, `chore:`, ...).
 - YAML files start with `---`.
+- Third-party actions are pinned to a full commit SHA with the version in a comment (`uses: owner/repo@<sha> # vX.Y.Z`), in workflows and actions alike. Tool or image version inputs of proxies default to a pinned release, not `latest`.
