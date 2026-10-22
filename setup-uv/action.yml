@@ -1,0 +1,158 @@
+---
+name: Setup uv
+description: Proxy for astral-sh/setup-uv
+
+inputs:
+  version:
+    description: The version of uv to install, e.g., `0.5.0`, `latest`, or `latest-known`. Defaults to the version in pyproject.toml or `latest`.
+    default: ""
+  version-file:
+    description: Path to a file containing the version of uv to install, e.g., uv.toml, pyproject.toml, .tool-versions, requirements.txt or uv.lock. Defaults to searching for uv.toml and if not found pyproject.toml.
+    default: ""
+  python-version:
+    description: The version of Python to set UV_PYTHON to. Overrides the Python version from .tool-versions.
+    required: false
+  python-arch:
+    description: The Python architecture to set UV_PYTHON_ARCH to, e.g., x86_64 or aarch64. Overrides UV_PYTHON_ARCH.
+    required: false
+  activate-environment:
+    description: Use uv venv to activate a venv ready to be used by later steps.
+    default: "false"
+  venv-path:
+    description: Custom path for the virtual environment when using activate-environment. Defaults to '.venv' in the working directory.
+    default: ""
+  no-project:
+    description: Pass --no-project when creating the venv with activate-environment.
+    default: "false"
+  working-directory:
+    description: The directory to execute all commands in and look for files such as pyproject.toml
+    default: ${{ github.workspace }}
+  checksum:
+    description: The checksum of the uv version to install
+    required: false
+  github-token:
+    description: Used when downloading uv from GitHub releases.
+    required: false
+    default: ${{ github.token }}
+  enable-cache:
+    description: Enable the GitHub Actions cache for uv. 'auto' enables caching on GitHub-hosted runners except for release, tag push, pull_request_target, and workflow_run events.
+    default: auto
+  cache-dependency-glob:
+    description: Glob pattern to match files relative to the working directory to control the cache.
+    default: |
+      **/*requirements*.txt
+      **/*requirements*.in
+      **/*constraints*.txt
+      **/*constraints*.in
+      **/pyproject.toml
+      **/uv.lock
+      **/*.py.lock
+  restore-cache:
+    description: Whether to restore the cache if found.
+    default: "true"
+  save-cache:
+    description: Whether to save the cache after the run. 'auto' disables saving for merge_group events.
+    default: auto
+  cache-suffix:
+    description: Suffix for the cache key
+    required: false
+  cache-local-path:
+    description: Local path to store the cache.
+    default: ""
+  prune-cache:
+    description: Prune cache before saving.
+    default: "false"
+  cache-python:
+    description: Upload managed Python installations to the Github Actions cache.
+    default: "false"
+  ignore-nothing-to-cache:
+    description: Ignore when nothing is found to cache.
+    default: "false"
+  ignore-empty-workdir:
+    description: Ignore when the working directory is empty.
+    default: "false"
+  tool-dir:
+    description: Custom path to set UV_TOOL_DIR to.
+    required: false
+  tool-bin-dir:
+    description: Custom path to set UV_TOOL_BIN_DIR to.
+    required: false
+  manifest-file:
+    description: URL to a custom manifest file in the astral-sh/versions format.
+    required: false
+  download-from-astral-mirror:
+    description: Download uv from the Astral mirror instead of directly from GitHub Releases.
+    default: "true"
+  add-problem-matchers:
+    description: Add problem matchers.
+    default: "true"
+  quiet:
+    description: Suppress info-level log output. Only warnings and errors are shown.
+    default: "false"
+  resolution-strategy:
+    description: Resolution strategy to use when resolving version ranges. 'highest' uses the latest compatible version, 'lowest' uses the oldest compatible version.
+    default: highest
+
+outputs:
+  uv-version:
+    description: The installed uv version. Useful when using latest.
+    value: ${{ steps.setup.outputs.uv-version }}
+  uv-path:
+    description: The path to the installed uv binary.
+    value: ${{ steps.setup.outputs.uv-path }}
+  uvx-path:
+    description: The path to the installed uvx binary.
+    value: ${{ steps.setup.outputs.uvx-path }}
+  cache-hit:
+    description: A boolean value to indicate a cache entry was found
+    value: ${{ steps.setup.outputs.cache-hit }}
+  cache-key:
+    description: The cache key used for storing/restoring the cache
+    value: ${{ steps.setup.outputs.cache-key }}
+  venv:
+    description: Path to the activated venv if activate-environment is true
+    value: ${{ steps.setup.outputs.venv }}
+  python-version:
+    description: The Python version that was set.
+    value: ${{ steps.setup.outputs.python-version }}
+  python-runtime-id:
+    description: An opaque identifier reported by uv for the activated venv's Python runtime. Empty when activate-environment is false.
+    value: ${{ steps.setup.outputs.python-runtime-id }}
+  python-cache-hit:
+    description: A boolean value to indicate the Python cache entry was found
+    value: ${{ steps.setup.outputs.python-cache-hit }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup uv
+      id: setup
+      uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      with:
+        version: ${{ inputs.version }}
+        version-file: ${{ inputs.version-file }}
+        python-version: ${{ inputs.python-version }}
+        python-arch: ${{ inputs.python-arch }}
+        activate-environment: ${{ inputs.activate-environment }}
+        venv-path: ${{ inputs.venv-path }}
+        no-project: ${{ inputs.no-project }}
+        working-directory: ${{ inputs.working-directory }}
+        checksum: ${{ inputs.checksum }}
+        github-token: ${{ inputs.github-token }}
+        enable-cache: ${{ inputs.enable-cache }}
+        cache-dependency-glob: ${{ inputs.cache-dependency-glob }}
+        restore-cache: ${{ inputs.restore-cache }}
+        save-cache: ${{ inputs.save-cache }}
+        cache-suffix: ${{ inputs.cache-suffix }}
+        cache-local-path: ${{ inputs.cache-local-path }}
+        prune-cache: ${{ inputs.prune-cache }}
+        cache-python: ${{ inputs.cache-python }}
+        ignore-nothing-to-cache: ${{ inputs.ignore-nothing-to-cache }}
+        ignore-empty-workdir: ${{ inputs.ignore-empty-workdir }}
+        tool-dir: ${{ inputs.tool-dir }}
+        tool-bin-dir: ${{ inputs.tool-bin-dir }}
+        manifest-file: ${{ inputs.manifest-file }}
+        download-from-astral-mirror: ${{ inputs.download-from-astral-mirror }}
+        add-problem-matchers: ${{ inputs.add-problem-matchers }}
+        quiet: ${{ inputs.quiet }}
+        resolution-strategy: ${{ inputs.resolution-strategy }}

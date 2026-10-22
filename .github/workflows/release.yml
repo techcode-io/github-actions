@@ -69,12 +69,36 @@ jobs:
     if: inputs.action == 'setup-github-bot'
     uses: ./.github/workflows/test-setup-github-bot.yml
 
+  test-setup-qemu:
+    needs: validate
+    if: inputs.action == 'setup-qemu'
+    uses: ./.github/workflows/test-setup-qemu.yml
+
+  test-setup-buildx:
+    needs: validate
+    if: inputs.action == 'setup-buildx'
+    uses: ./.github/workflows/test-setup-buildx.yml
+
+  test-setup-uv:
+    needs: validate
+    if: inputs.action == 'setup-uv'
+    uses: ./.github/workflows/test-setup-uv.yml
+
   publish:
     needs:
       - validate
       - test-setup-github-bot
+      - test-setup-qemu
+      - test-setup-buildx
+      - test-setup-uv
     # Add one `needs.test-<action>.result == 'success'` clause per action; an action without a test job cannot be released.
-    if: ${{ !cancelled() && needs.test-setup-github-bot.result == 'success' }}
+    if: >-
+      ${{ !cancelled() && (
+        needs.test-setup-github-bot.result == 'success' ||
+        needs.test-setup-qemu.result == 'success' ||
+        needs.test-setup-buildx.result == 'success' ||
+        needs.test-setup-uv.result == 'success'
+      ) }}
     runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v7

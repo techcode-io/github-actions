@@ -1,0 +1,40 @@
+---
+name: Test setup-buildx
+
+on:
+  workflow_call: ~
+  pull_request:
+    paths:
+      - setup-buildx/**
+      - .github/workflows/test-setup-buildx.yml
+  push:
+    branches:
+      - main
+    paths:
+      - setup-buildx/**
+      - .github/workflows/test-setup-buildx.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # Buildx needs a Linux Docker daemon.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run action
+        id: buildx
+        uses: ./setup-buildx
+
+      - name: Verify builder
+        shell: bash
+        env:
+          NAME: ${{ steps.buildx.outputs.name }}
+          DRIVER: ${{ steps.buildx.outputs.driver }}
+        run: |
+          [ -n "$NAME" ]
+          [ "$DRIVER" = "docker-container" ]
+          docker buildx inspect "$NAME"
+          printf 'FROM alpine\n' | docker buildx build --builder "$NAME" -

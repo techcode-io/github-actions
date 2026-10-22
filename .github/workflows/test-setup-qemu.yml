@@ -1,0 +1,39 @@
+---
+name: Test setup-qemu
+
+on:
+  workflow_call: ~
+  pull_request:
+    paths:
+      - setup-qemu/**
+      - .github/workflows/test-setup-qemu.yml
+  push:
+    branches:
+      - main
+    paths:
+      - setup-qemu/**
+      - .github/workflows/test-setup-qemu.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # QEMU emulators are registered for the Linux Docker daemon.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run action
+        id: qemu
+        uses: ./setup-qemu
+        with:
+          platforms: arm64
+
+      - name: Verify emulation
+        shell: bash
+        env:
+          PLATFORMS: ${{ steps.qemu.outputs.platforms }}
+        run: |
+          [[ ",$PLATFORMS," == *",linux/arm64,"* ]]
+          [ "$(docker run --rm --platform linux/arm64 alpine uname -m)" = "aarch64" ]

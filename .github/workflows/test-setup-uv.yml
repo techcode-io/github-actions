@@ -1,0 +1,48 @@
+---
+name: Test setup-uv
+
+on:
+  workflow_call: ~
+  pull_request:
+    paths:
+      - setup-uv/**
+      - .github/workflows/test-setup-uv.yml
+  push:
+    branches:
+      - main
+    paths:
+      - setup-uv/**
+      - .github/workflows/test-setup-uv.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-slim
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run action
+        id: uv
+        uses: ./setup-uv
+        with:
+          # Nothing is installed with uv here, so there is nothing to cache.
+          enable-cache: "false"
+
+      - name: Verify uv
+        shell: bash
+        env:
+          UV_VERSION: ${{ steps.uv.outputs.uv-version }}
+        run: |
+          [ -n "$UV_VERSION" ]
+          [ "$(uv --version | cut -d' ' -f2)" = "$UV_VERSION" ]
+          uvx --version
