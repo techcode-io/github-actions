@@ -1,0 +1,50 @@
+---
+name: Test setup-rust
+
+on:
+  workflow_call: ~
+  pull_request:
+    paths:
+      - setup-rust/**
+      - .github/workflows/test-setup-rust.yml
+  push:
+    branches:
+      - main
+    paths:
+      - setup-rust/**
+      - .github/workflows/test-setup-rust.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-slim
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Run action
+        id: rust
+        uses: ./setup-rust
+        with:
+          components: clippy, rustfmt
+
+      - name: Verify Rust
+        shell: bash
+        env:
+          NAME: ${{ steps.rust.outputs.name }}
+          CACHEKEY: ${{ steps.rust.outputs.cachekey }}
+        run: |
+          [ "$NAME" = "1.99.1" ]
+          [ -n "$CACHEKEY" ]
+          [ "$(rustc --version | cut -d' ' -f2)" = "$NAME" ]
+          cargo clippy --version
+          cargo fmt --version
