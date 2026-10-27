@@ -9,7 +9,7 @@ Monorepo of reusable GitHub Actions. Each top-level directory (e.g. `setup-githu
 ## Testing
 
 - Each action has `.github/workflows/test-<action>.yml`, triggered on `workflow_call` and on pull requests / pushes to `main` that touch `<action>/**` or the test workflow itself.
-- Tests run the action from the local path (`uses: ./<action>`) and then assert its effects in a shell step. They run on a matrix of ubuntu, macos and windows, so use `shell: bash` and portable commands.
+- Tests run the action from the local path (`uses: ./<action>`) and then assert its effects in a shell step. They run on a matrix of `ubuntu-slim`, `macos-latest` and `windows-latest`, so use `shell: bash` and portable commands. Actions that need Docker (setup-qemu, setup-buildx) run on `ubuntu-latest` only, because `ubuntu-slim` has no Docker daemon.
 
 ## Release architecture
 
