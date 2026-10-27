@@ -97,6 +97,7 @@ Each action is referenced by its prefixed tag:
 | [setup-buildx](setup-buildx)               | Proxy for `docker/setup-buildx-action`           |
 | [setup-github-bot](setup-github-bot)       | Configure git to commit as `github-actions[bot]` |
 | [setup-qemu](setup-qemu)                   | Proxy for `docker/setup-qemu-action`             |
+| [setup-rust](setup-rust)                   | Proxy for `dtolnay/rust-toolchain`               |
 | [setup-uv](setup-uv)                       | Proxy for `astral-sh/setup-uv`                   |
 
 ## :heart: Contributing
